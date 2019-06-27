@@ -38,7 +38,7 @@ public class UploadServiceImpl implements UploadExelService {
 
         for (int j = 1; j <= batchCount; j++) {
             if (j == batchCount) {
-                exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, rowCount));
+                exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, rowCount - 1));
             } else {
                 exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, indexTo));
                 indexFrom += BATCH_SIZE;
