@@ -30,19 +30,18 @@ public class UploadServiceImpl implements UploadExelService {
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
 
-        Integer rowCount = sheet.getPhysicalNumberOfRows();
-        Integer batchSize = BATCH_SIZE;
-        int batchCount = ((int) Math.ceil(rowCount / batchSize) + 1);
+        double rowCount = sheet.getPhysicalNumberOfRows();
+        double batchCount = Math.ceil(rowCount / (double) BATCH_SIZE);
         int indexFrom = 1;
         int indexTo = indexFrom + BATCH_SIZE;
 
         for (int j = 1; j <= batchCount; j++) {
             if (j == batchCount) {
-                exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, rowCount - 1));
+                exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, (int) (rowCount - 1)));
             } else {
                 exelUploadDao.insertBatch(parseExelFileByPart(sheet, indexFrom, indexTo));
-                indexFrom += BATCH_SIZE;
-                indexTo += BATCH_SIZE;
+                indexFrom += BATCH_SIZE + 1;
+                indexTo += BATCH_SIZE + 1;
             }
         }
     }
