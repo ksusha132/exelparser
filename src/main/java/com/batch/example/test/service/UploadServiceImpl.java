@@ -2,6 +2,7 @@ package com.batch.example.test.service;
 
 import com.batch.example.test.dao.UploadDao;
 import com.batch.example.test.dto.Index;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -11,11 +12,13 @@ import java.util.List;
 @Service
 public class UploadServiceImpl implements UploadService {
 
-    private static final int BATCH_SIZE = 10000;
     private final UploadDao uploadDao;
 
-    public UploadServiceImpl(UploadDao uploadDao) {
+    private ExelCreator exelCreator;
+
+    public UploadServiceImpl(UploadDao uploadDao, ExelCreator exelCreator) {
         this.uploadDao = uploadDao;
+        this.exelCreator = exelCreator;
     }
 
     @Override
@@ -35,7 +38,7 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public void createBatchFiles() {
+    public void createBatchFiles() throws IOException {
         Integer rowCount = uploadDao.getRowCount();
         double batch = 500;
         double iterationsCount = Math.ceil((double) rowCount / batch);
@@ -43,11 +46,18 @@ public class UploadServiceImpl implements UploadService {
         int limit = (int) batch;
 
         for (int i = 0; i < iterationsCount; i++) {
-            uploadDao.getElementsByRange(limit, offset);
+
             if (i == iterationsCount - 1) {
-                uploadDao.getElementsByRange(rowCount - (limit * i), offset);
+                callExelCreator(offset, rowCount - (limit * i), i);
+                break;
             }
+
+            callExelCreator(offset, limit, i);
             offset += batch;
         }
+    }
+
+    private void callExelCreator(int offset, int limit, int i) throws IOException {
+        exelCreator.createExel("file" + i, uploadDao.getElementsByRange(limit, offset));
     }
 }

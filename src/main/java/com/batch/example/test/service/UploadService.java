@@ -6,5 +6,5 @@ import java.io.IOException;
 public interface UploadService {
     void uploadFile() throws IOException;
 
-    void createBatchFiles();
+    void createBatchFiles() throws IOException;
 }
